@@ -1,1 +1,17 @@
+sudo: true
+dist: trusty
 
+jobs:
+  include:
+    - stage: build docker image
+      script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - LATEST_TAG=$(curl -s 'https://api.github.com/repos/lancaster-university/codal/releases/latest'|jq -r '.tag_name')
+      - echo $LATEST_TAG
+      - docker build --rm -f Dockerfile --build-arg GIT_COMMIT="$LATEST_TAG" -t "$DOCKER_IMAGE":latest .
+      - docker images
+      - docker tag  $DOCKER_IMAGE:latest $DOCKER_USERNAME/$DOCKER_IMAGE:latest
+      - docker push $DOCKER_USERNAME/$DOCKER_IMAGE:latest
+    - stage: test
+      script: 
+      - docker run --rm $DOCKER_USERNAME/$DOCKER_IMAGE python build.py -t
