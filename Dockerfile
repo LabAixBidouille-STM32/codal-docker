@@ -6,7 +6,7 @@ ENV GIT_COMMIT="HEAD"
 ENV GIT_URL="https://github.com/lancaster-university/codal.git"
 
 RUN echo -e "machine github.com\n  login $AUTH_TOKEN" >> ~/.netrc &&\
- git clone git clone ${GIT_URL} &&\
+ git clone ${GIT_URL} &&\
  cd codal &&\
  git checkout ${GIT_COMMIT}
 
