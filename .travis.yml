@@ -1,15 +1,21 @@
 sudo: true
 dist: trusty
 
+env:
+  global:
+        - COMMIT=${TRAVIS_COMMIT::8}
 jobs:
   include:
     - stage: build docker image
       script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - docker build --rm -f Dockerfile -t "$DOCKER_IMAGE":latest .
+      - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo "$TRAVIS_BRANCH" ; fi`
+      - export REPO="$DOCKER_USERNAME/$DOCKER_IMAGE"
+      - docker build --rm -f Dockerfile -t "$REPO:$COMMIT" .
       - docker images
-      - docker tag  $DOCKER_IMAGE:latest $DOCKER_USERNAME/$DOCKER_IMAGE:latest
-      - docker push $DOCKER_USERNAME/$DOCKER_IMAGE:latest
+      - docker tag "$REPO:$COMMIT" "$REPO:$TAG"
+      - docker tag "$REPO:$COMMIT" "$REPO:travis-$TRAVIS_BUILD_NUMBER"
+      - docker push $REPO
     - stage: test
       script: 
       - docker run --rm $DOCKER_USERNAME/$DOCKER_IMAGE python build.py -t
