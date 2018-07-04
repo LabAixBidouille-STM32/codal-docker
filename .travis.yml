@@ -18,4 +18,4 @@ jobs:
       - docker push $REPO
     - stage: test
       script: 
-      - docker run --rm $DOCKER_USERNAME/$DOCKER_IMAGE python build.py ./build.py -d codal-stm32-iot-node
+      - docker run --rm $DOCKER_USERNAME/$DOCKER_IMAGE python build.py codal-stm32-iot-node
